@@ -1,0 +1,102 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+require_relative './generator'
+require_relative './../lib/mushin/version'
+
+module Mushin
+  #TODO check rubygems API if gem name is taken or not, and offer suggestions
+  #TODO ask DSF developer for keywords about mushin gem extenstions they want to include intheir DSF 
+  # and search rubygems API for those keywords to find the possible mushin extenstions, 
+  # if DSF developer choose them they get included in dsf.gemspec upon generation
+
+
+  class CLI < Thor
+
+    no_commands do 
+      def seprator
+	puts(" ")
+	puts("-------------------------------------------------------------------------------")
+	puts(" ")
+      end
+
+      def done
+	message   = set_color "  DONE  ", :green, :on_white, :bold
+	motive = set_color " You're Awesome! Mushin is Opensource & Welcomes your Contributions!" + " ", :yellow
+	say(message + motive)
+      end
+    end
+
+    map %w[--version -v] => :__print_version
+
+    desc "--version, -v", "print the version"
+    def __print_version
+      info = set_color("  INFO  ", :green, :on_white, :bold)
+      message = " Mushin " + Mushin::VERSION
+      puts (info + message)
+    end
+
+    desc "g", "Generates a DSF via `mushin g dsf` or DSF Ext via `mushin g ext`"
+    def g command, params = {}
+      #NOTE if params is empty then use ineractive mode
+      if params.empty? then
+	case command
+	when "domain", "dsf"
+	  info = set_color("  INFO  ", :green, :on_white, :bold)
+	  message = " Generating a Mushin Domain-specific Framework! "
+	  puts (info + message)
+	  #puts " for more info visit: http://guides.rubygems.org/name-your-gem/"
+
+	  dsf_name 		= ask(set_color("Mushin Domain-specific Framework Name		: ", :bold))
+	  #dsf_name[0] 		= dsf_name[0].capitalize
+	  #dsf_name 		= "mushin" + dsf_name
+
+	  dsf_summary 		= ask(set_color("Mushin Domain-specific Framework Summary	: ", :bold)) 
+	  dsf_description 	= ask(set_color("Mushin Domain-specific Framework Description	: ", :bold)) 
+	  dsf_homepage	 	= ask(set_color("Mushin Domain-specific Framework Homepage	: ", :bold)) 
+	  dsf_license	 	= ask(set_color("Mushin Domain-specific Framework License	: ", :bold)) 
+
+	  dsf_summary 		= dsf_summary + " #{dsf_name} is a Domain-specific Framework generated via Mushin, visit hackspree.com for more info"
+
+	  seprator
+	  Mushin::Generator.new.generate_dsf name: dsf_name, summary: dsf_summary, description: dsf_description, homepage: dsf_homepage, license: dsf_license
+	  done # Says Done you are awesome!	  
+	when "extension", "ext"
+	  info = set_color("  INFO  ", :green, :on_white, :bold)
+	  message = " Generating a Mushin Extension! "
+	  puts (info + message)
+	  #puts " for more info visit: http://guides.rubygems.org/name-your-gem/"
+
+	  ext_name 		= ask(set_color("Mushin Extension Name		: ", :bold))
+	  #ext_name[0] 		= ext_name[0].capitalize
+	  #ext_name 		= "mushin" + ext_name
+
+	  ext_summary 		= ask(set_color("Mushin Extension Summary	: ", :bold)) 
+	  ext_description 	= ask(set_color("Mushin Extension Description	: ", :bold)) 
+	  ext_homepage	 	= ask(set_color("Mushin Extension Homepage 	: ", :bold)) 
+	  ext_license	 	= ask(set_color("Mushin Extension License	: ", :bold)) 
+
+	  ext_summary 		= ext_summary + " #{ext_name} is a mushin extension generated via Mushin, visit hackspree.com for more info"
+
+	  seprator
+	  Mushin::Generator.new.generate_ext name: ext_name, summary: ext_summary, description: ext_description, homepage: ext_homepage, license: ext_license
+	  done # Says Done you are awesome!	  
+	else
+	  #if params is not empty then use direct mode (good for piping from other programs)
+	end
+      end
+
+      #      desc "package", "package this DSF as a gem"
+      #      def package
+      #	`bundle exec rake release`
+      #      end
+      #
+      ##      desc "deploy", ""
+      #      def deploy
+      #      end
+
+    end
+  end
+end
+
+Mushin::CLI.start
